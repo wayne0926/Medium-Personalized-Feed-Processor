@@ -1,0 +1,150 @@
+# Logging configuration
+logging_level: INFO # DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_file: app.log # Set to null or remove to log only to console
+
+# RSS feeds to monitor
+# Tip: Search and verify the actual content and activity of these tags on Medium.com
+medium_feeds:
+  # Tech Ethics & Social Impact
+  - https://medium.com/feed/tag/tech-ethics
+  - https://medium.com/feed/tag/society
+
+  # Symbolism & Mythology
+  - https://medium.com/feed/tag/symbolism
+  - https://medium.com/feed/tag/mythology
+
+  # Culture & Social Commentary
+  - https://medium.com/feed/the-bigger-picture
+  - https://medium.com/feed/human-parts
+  - https://medium.com/feed/an-injustice
+
+  # Add your specific author/publication/tag feeds here
+  # - https://medium.com/feed/@username
+  # - https://medium.com/feed/publication-name
+
+# AI Filtering Configuration
+ai_filter:
+  # Your interests (be specific)
+  interests:
+    - "systems thinking & complexity science"
+    - "cognitive science & philosophy of mind"
+    - "film analysis & narrative theory"
+  # Topics/types to filter out
+  dislikes:
+    - "crypto price speculation"
+    - "get rich quick schemes"
+    - "basic programming tutorials"
+    - "career advice listicles"
+    - "marketing buzzwords / marketing funnels"
+    - "promotional content / affiliate marketing"
+    - "low-quality / poorly written content"
+    - "shallow content / superficial analysis"
+    - "clickbait titles / sensationalism"
+    - "generic life advice / self-help platitudes"
+    - "vague or unsubstantiated philosophical claims"
+    - "listicles without substance"
+    - "unoriginal content / rehashed ideas"
+  # English level for vocabulary annotation (e.g., CEFR B2, C1, Native)
+  english_level: "CEFR C1"
+  # AI model for filtering (e.g., gpt-3.5-turbo, gpt-4-turbo)
+  filtering_model: "google/gemini-1.5-flash-preview" # Updated to Gemini 1.5 Flash
+  # AI model for processing/annotation (needs larger context, e.g., gpt-4-turbo)
+  processing_model: "google/gemini-1.5-pro-preview" # Updated to Gemini 1.5 Pro
+  # Optional: Specify a different base URL for the OpenAI API (e.g., for OpenRouter)
+  # Set via environment variable OPENAI_API_BASE_URL or here. Env var takes precedence.
+  api_base_url: "https://openrouter.ai/api/v1"
+  # Optional: Specify a proxy URL for AI API requests (e.g., http://user:pass@host:port, socks5://host:port)
+  # Set via environment variable HTTP_PROXY/HTTPS_PROXY or here. This setting takes precedence if set.
+  proxy: null # Example: "http://127.0.0.1:7890"
+  # Relevance levels to keep (Keep High/Medium, relevance is still important)
+  accepted_relevance: ["High", "Medium"]
+  # Quality/type levels to keep (Stricter)
+  accepted_quality: ["In-depth", "Opinion"] # Only accept in-depth analysis and well-reasoned opinions
+  # Consider keeping only ["In-depth"] for the most stringent filtering
+
+# Full Content Fetching Configuration
+fetch_config:
+  # Path to your Netscape cookie file
+  cookie_file: "medium.com_cookies.txt"
+  # Timeout in seconds for fetching full article HTML
+  fetch_timeout: 30
+  # Optional: Specify a proxy URL for fetching article HTML (e.g., http://user:pass@host:port, socks5://host:port)
+  # Set via environment variable HTTP_PROXY/HTTPS_PROXY or here. This setting takes precedence if set.
+  proxy: null # Example: "socks5://127.0.0.1:1080"
+
+# --- Target API Configuration (Generic) --- #
+# Used only if output.method is 'api'
+target_api:
+  # REQUIRED: Full URL of the target API endpoint
+  endpoint: "YOUR_API_ENDPOINT_URL" # Example: "https://your-api.com/v1/articles"
+
+  # HTTP method (default: POST)
+  method: "POST"
+
+  # Authentication configuration
+  authentication:
+    # Type: 'none', 'bearer', 'header_key', 'body_key'
+    # The actual API Key/Token value MUST be stored in the TARGET_API_KEY environment variable for security.
+    type: "none" # Default: no authentication
+
+    # Required if type is 'header_key' or 'bearer'.
+    # Specifies the name of the HTTP header.
+    # Example for header_key: "X-API-Key"
+    # Example for bearer: "Authorization" (the value will be automatically prefixed with "Bearer ")
+    header_name: null
+
+    # Required if type is 'body_key'.
+    # Specifies the key in the JSON payload where the TARGET_API_KEY value will be placed.
+    body_key_name: null # Example: "apiKey"
+
+  # Custom headers to send with the request (optional)
+  # Default Content-Type is set to application/json if payload is sent.
+  headers:
+    # Example:
+    # User-Agent: "MyMediumProcessor/1.0"
+    # Accept: "application/vnd.api+json"
+    Content-Type: "application/json"
+
+  # Payload mapping: Defines the structure of the JSON payload sent to the API.
+  # Use placeholders like {title}, {link}, {summary}, {published_iso}, {source_tag}, {content_markdown}
+  # These placeholders will be replaced with the actual article data.
+  # You can also include static values or combine placeholders.
+  payload_mapping:
+    # --- Example for a hypothetical API --- #
+    article_title: "{title}"
+    source_url: "{link}"
+    body_markdown: "{content_markdown}"
+    publication_date: "{published_iso}"
+    # Example combining static text and placeholder:
+    category: "imported/medium/{source_tag}"
+    # Example static value:
+    status: "draft"
+    # Note: If authentication.type is 'body_key', the key specified in
+    # authentication.body_key_name will be added automatically.
+
+  # Success Check: How to determine if the API call was successful.
+  success_check:
+    # Type: 'status_code' (check response HTTP status code) or 'json_field' (check a field in the JSON response)
+    type: "status_code" # Default
+
+    # Required if type is 'status_code'. List of acceptable HTTP status codes.
+    expected_status_codes: [200, 201]
+
+    # Required if type is 'json_field'. The key to check in the JSON response.
+    json_field_name: null # Example: "result.status"
+    # Required if type is 'json_field'. The expected value for the specified field.
+    expected_json_value: null # Example: "created"
+
+  # Timeout in seconds for the API request
+  push_timeout: 30
+
+# State Management
+state_database:
+  db_file: "processed_articles.db"
+
+# Added: Output Configuration
+output:
+  # Output method: 'api' or 'local'
+  method: "api" # Defaulted to 'api' to maintain existing behavior
+  # If method is 'local', specify the root directory to save Markdown files
+  local_dir: "output_markdown" 

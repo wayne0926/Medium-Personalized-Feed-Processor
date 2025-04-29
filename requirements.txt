@@ -1,0 +1,9 @@
+feedparser>=6.0.0
+requests>=2.26.0
+beautifulsoup4>=4.10.0
+lxml>=4.6.3 # Recommended parser for beautifulsoup4
+openai>=1.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+# newspaper3k>=0.2.8 # Optional: for fallback content extraction
+httpx # Added for OpenAI client proxy support 

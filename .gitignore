@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# OS specific files
+.DS_Store
+
+# Sensitive files
+.env
+medium.com_cookies.txt
+
+# Database files
+processed_articles.db 
