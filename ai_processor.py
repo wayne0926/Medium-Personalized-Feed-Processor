@@ -223,30 +223,59 @@ def process_content_with_ai(full_text, article_url):
     ai_conf = config.get('ai_filter', {})
     english_level = ai_conf.get('english_level', 'CEFR C1')
     model = ai_conf.get('processing_model', 'gpt-4-turbo') # Use a model suitable for long text
+    # Read new config options
+    enable_annotation = ai_conf.get('enable_vocabulary_annotation', False) # Default to False if not set
+    annotation_language = ai_conf.get('annotation_language', None)
 
     # Simple check if text is empty or too short
     if not full_text or len(full_text) < 100:
         logger.warning(f"Content for {article_url} is too short or empty. Skipping AI processing.")
         return full_text # Return original text if too short
 
-    prompt = f"""
+    # --- Build the prompt dynamically ---
+    prompt_base = f"""
     You are an expert text processor specializing in converting HTML to Markdown.
-    Your task is to convert the following English article HTML into well-structured Markdown format AND annotate potentially difficult vocabulary for a user whose English level is approximately {english_level}.
+    Your primary task is to convert the following English article HTML into well-structured Markdown format.
 
     Instructions:
     1. Convert the input HTML into clean Markdown. Use appropriate Markdown syntax for headings (derived from <h1>-<h6> tags), lists (<ul>, <ol>, <li>), blockquotes (<blockquote>), paragraphs (<p>), and code blocks (<pre>, <code>). Ensure paragraphs are separated by a blank line.
     2. **Image Handling:** Convert `<img>` HTML tags to Markdown image syntax: `![alt text](src)`. Use the `alt` attribute from the `<img>` tag as the alt text. If the `alt` attribute is missing or empty, use a generic placeholder like 'image'.
-    3. Identify specific words or short technical phrases (1-4 words) in the *text content* that might be challenging for a {english_level} learner reading a technical article. Examples: 'idempotent', 'concurrency control', 'distributed ledger', 'gradient descent'.
-    4. Immediately after each identified challenging word/phrase, add its concise Chinese translation in parentheses. Example: "...a very sophisticated (复杂的) approach...", "...implementing concurrency control (并发控制)..."
-    5. Do NOT annotate common English words (e.g., 'the', 'is', 'and', 'but', 'article', 'content', 'system'). Focus on domain-specific terms, advanced vocabulary, or idioms that hinder understanding for the target level. Annotations should only be applied to the text content, not within image tags or other Markdown syntax.
-    6. Preserve the original meaning and structure of the article as much as possible. Do not summarize or add external information.
-    7. Output ONLY the processed Markdown text with the inline Chinese annotations.
+    3. Preserve the original meaning and structure of the article as much as possible. Do not summarize or add external information.
+    4. Output ONLY the processed Markdown text.
+    """
+
+    prompt_annotation_instructions = "" # Initialize as empty
+    if enable_annotation and annotation_language:
+        prompt_annotation_instructions = f"""
+
+    **Additional Task: Vocabulary Annotation**
+    Besides Markdown conversion, your *secondary* task is to annotate potentially difficult vocabulary for a user whose English level is approximately {english_level}.
+
+    Annotation Instructions:
+    A. Identify specific words or short technical phrases (1-4 words) in the *text content* that might be challenging for a {english_level} learner reading a technical article. Examples: 'idempotent', 'concurrency control', 'distributed ledger', 'gradient descent'.
+    B. Immediately after each identified challenging word/phrase, add its concise translation into **{annotation_language}** in parentheses. Example (if target language is Chinese): "...a very sophisticated (复杂的) approach...", "...implementing concurrency control (并发控制)..." Ensure the translation fits naturally.
+    C. Do NOT annotate common English words (e.g., 'the', 'is', 'and', 'but', 'article', 'content', 'system'). Focus on domain-specific terms, advanced vocabulary, or idioms that hinder understanding for the target level.
+    D. Annotations should ONLY be applied to the text content, not within image tags, code blocks, or other Markdown syntax elements.
+    E. If performing annotations, ensure the final output is still valid Markdown with the inline ({annotation_language}) annotations.
+    """
+        # Modify the base instruction about the output format if annotation is enabled
+        prompt_base = prompt_base.replace(
+            "4. Output ONLY the processed Markdown text.",
+            f"4. Output ONLY the processed Markdown text, potentially including inline {annotation_language} annotations as per the instructions below."
+        )
+
+    # Combine prompts
+    prompt = f"""{prompt_base}{prompt_annotation_instructions}
 
     Article HTML (from {article_url}):
     ---
     {full_text}
     ---
     """
+    if enable_annotation and annotation_language:
+         logger.info(f"AI processing for {article_url}: Markdown conversion and {annotation_language} annotations requested.")
+    else:
+         logger.info(f"AI processing for {article_url}: Markdown conversion ONLY requested.")
 
     logger.debug(f"Sending content processing request to AI for article: {article_url}")
     try:

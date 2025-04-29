@@ -161,6 +161,10 @@ ai_filter:
     - "营销流行语"
   # 词汇注释的英语水平 (例如 CEFR B2, C1, Native)
   english_level: "CEFR C1"
+  # 设置为 false 以禁用自动添加词汇翻译
+  enable_vocabulary_annotation: true
+  # 指定词汇注释的目标语言 (例如 "Spanish", "French", "German")
+  annotation_language: "Chinese"
   # 用于阶段 1 和 2 过滤 (标题/摘要和完整内容) 的 AI 模型
   filtering_model: "google/gemini-1.5-flash-preview" # 或例如 "gpt-3.5-turbo"
   # 用于内容处理 (HTML -> Markdown + 注释) 的 AI 模型
@@ -286,6 +290,8 @@ state_database:
 *   **`ai_filter`:**
     *   `interests`/`dislikes`: 定义您对 AI 过滤器的偏好。
     *   `english_level`: 设置词汇注释的目标级别。
+    *   `enable_vocabulary_annotation`: (布尔值, 默认: `true`) 设置为 `false` 以禁用自动添加词汇翻译。
+    *   `annotation_language`: (字符串, 默认: `"Chinese"`) 指定词汇注释的目标语言 (例如 `"Spanish"`, `"French"`, `"German"`)。仅当 `enable_vocabulary_annotation` 为 `true` 时使用。
     *   `filtering_model`/`processing_model`: 指定要使用的 AI 模型。确保您的 `OPENAI_API_KEY` 有权访问这些模型。
     *   `api_base_url`: 如果您的 AI 提供商不是 OpenAI 或者您正在使用代理/本地模型，请使用此项。
     *   `proxy`: **(新增)** 可选地指定用于 AI API 请求的完整代理 URL (例如 `http://localhost:7890`, `socks5://user:pass@host:port`)。如果设置，它将覆盖这些特定请求的 `HTTP_PROXY`/`HTTPS_PROXY` 环境变量。需要 `httpx` 库 (已添加到 `requirements.txt`)。

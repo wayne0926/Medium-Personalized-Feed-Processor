@@ -160,6 +160,10 @@ ai_filter:
     - "marketing buzzwords"
   # English level for vocabulary annotation (e.g., CEFR B2, C1, Native)
   english_level: "CEFR C1"
+  # Set to false to disable the automatic addition of vocabulary translations
+  enable_vocabulary_annotation: true
+  # Specifies the target language for vocabulary annotations (e.g., "Spanish", "French", "German")
+  annotation_language: "Chinese"
   # AI model for Stage 1 & 2 filtering (title/summary & full content)
   filtering_model: "google/gemini-1.5-flash-preview" # Or e.g., "gpt-3.5-turbo"
   # AI model for content processing (HTML -> Markdown + Annotations)
@@ -285,6 +289,8 @@ state_database:
 *   **`ai_filter`:**
     *   `interests`/`dislikes`: Define your preferences for the AI filters.
     *   `english_level`: Sets the target level for vocabulary annotations.
+    *   `enable_vocabulary_annotation`: (boolean, default: `true`) Set to `false` to disable the automatic addition of vocabulary translations.
+    *   `annotation_language`: (string, default: `"Chinese"`) Specifies the target language for vocabulary annotations (e.g., `"Spanish"`, `"French"`, `"German"`). This is only used if `enable_vocabulary_annotation` is `true`.
     *   `filtering_model`/`processing_model`: Specify the AI models to use. Ensure your `OPENAI_API_KEY` has access to these models.
     *   `api_base_url`: Use this if your AI provider isn't OpenAI or if you're using a proxy/local model.
     *   `proxy`: **(New)** Optionally specify a full proxy URL (e.g., `http://localhost:7890`, `socks5://user:pass@host:port`) to use for AI API requests. If set, this overrides the `HTTP_PROXY`/`HTTPS_PROXY` environment variables for these specific requests. Requires the `httpx` library (added to `requirements.txt`).

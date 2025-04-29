@@ -46,6 +46,10 @@ ai_filter:
     - "unoriginal content / rehashed ideas"
   # English level for vocabulary annotation (e.g., CEFR B2, C1, Native)
   english_level: "CEFR C1"
+  # Enable/disable vocabulary annotation
+  enable_vocabulary_annotation: true # set to false to disable
+  # Target language for vocabulary annotation (e.g., Chinese, Spanish, French, German). Set to null or remove if disabled.
+  annotation_language: "Chinese"
   # AI model for filtering (e.g., gpt-3.5-turbo, gpt-4-turbo)
   filtering_model: "google/gemini-1.5-flash-preview" # Updated to Gemini 1.5 Flash
   # AI model for processing/annotation (needs larger context, e.g., gpt-4-turbo)
